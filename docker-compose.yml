@@ -1,0 +1,79 @@
+version: '3.9'
+
+services:
+  # ================================
+  # Banco de Dados PostgreSQL
+  # ================================
+  db:
+    image: postgres:15-alpine
+    container_name: tcc_postgres
+    environment:
+      POSTGRES_DB: tcc_db
+      POSTGRES_USER: tcc_user
+      POSTGRES_PASSWORD: tcc_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tcc_user -d tcc_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - tcc_network
+
+  # ================================
+  # Backend Django + Gunicorn
+  # ================================
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: tcc_backend
+    env_file:
+      - .env
+    environment:
+      DB_ENGINE: postgresql
+      DB_HOST: db
+      DB_NAME: tcc_db
+      DB_USER: tcc_user
+      DB_PASSWORD: tcc_password
+      DB_PORT: 5432
+      DEBUG: "False"
+    volumes:
+      - media_data:/app/media
+      - static_data:/app/staticfiles
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - tcc_network
+    restart: unless-stopped
+
+  # ================================
+  # Frontend Angular + Nginx
+  # ================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: tcc_frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - tcc_network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  media_data:
+  static_data:
+
+networks:
+  tcc_network:
+    driver: bridge
