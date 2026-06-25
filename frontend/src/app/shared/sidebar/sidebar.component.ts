@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ToastService } from '../../core/services/toast.service';
+import { ThemeService } from '../../core/services/theme.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -94,8 +95,33 @@ import { ToastService } from '../../core/services/toast.service';
         </a>
       </nav>
 
-      <div class="sidebar-footer" *ngIf="!collapsed">
-        <div class="footer-info">
+      <div class="sidebar-footer">
+        <!-- Botão de tema claro/escuro -->
+        <button class="theme-toggle-btn" (click)="themeService.toggle()"
+          [title]="themeService.isDark() ? 'Mudar para modo claro' : 'Mudar para modo escuro'">
+          <!-- Sol — aparece no modo escuro para mudar para claro -->
+          <svg *ngIf="themeService.isDark()" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="theme-icon">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <!-- Lua — aparece no modo claro para mudar para escuro -->
+          <svg *ngIf="!themeService.isDark()" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="theme-icon">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+          <span class="theme-label" *ngIf="!collapsed">
+            {{ themeService.isDark() ? 'Modo Claro' : 'Modo Escuro' }}
+          </span>
+        </button>
+
+        <!-- Info do projeto -->
+        <div class="footer-info" *ngIf="!collapsed">
           <span class="footer-label">UFLA — GAC116</span>
           <span class="footer-sub">Programação Web 2026/2</span>
         </div>
@@ -115,126 +141,78 @@ import { ToastService } from '../../core/services/toast.service';
       transition: width var(--transition-slow);
       overflow: hidden;
     }
-
     .sidebar.collapsed { width: var(--sidebar-collapsed); }
 
     .sidebar-logo {
-      display: flex;
-      align-items: center;
-      padding: 0 16px;
-      height: 60px;
+      display: flex; align-items: center;
+      padding: 0 16px; height: 60px;
       border-bottom: 1px solid var(--border);
-      gap: 10px;
-      flex-shrink: 0;
+      gap: 10px; flex-shrink: 0;
     }
-
-    .logo-icon {
-      font-size: 22px;
-      flex-shrink: 0;
-      width: 32px;
-      text-align: center;
-    }
-
-    .logo-text {
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--text-primary);
-      white-space: nowrap;
-      flex: 1;
-    }
+    .logo-icon { font-size: 22px; flex-shrink: 0; width: 32px; text-align: center; }
+    .logo-text { font-size: 15px; font-weight: 700; color: var(--text-primary); white-space: nowrap; flex: 1; }
 
     .collapse-btn {
-      background: none;
-      border: none;
-      color: var(--text-secondary);
-      cursor: pointer;
-      padding: 4px;
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      transition: all var(--transition);
-      flex-shrink: 0;
+      background: none; border: none; color: var(--text-secondary);
+      cursor: pointer; padding: 4px; border-radius: 6px;
+      display: flex; align-items: center;
+      transition: all var(--transition); flex-shrink: 0;
     }
     .collapse-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
 
     .sidebar-nav {
-      flex: 1;
-      padding: 12px 8px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
+      flex: 1; padding: 12px 8px;
+      overflow-y: auto; display: flex;
+      flex-direction: column; gap: 2px;
     }
 
     .nav-section-label {
-      font-size: 10px;
-      font-weight: 700;
-      color: var(--text-muted);
-      letter-spacing: 0.8px;
-      padding: 12px 8px 4px;
-      text-transform: uppercase;
+      font-size: 10px; font-weight: 700; color: var(--text-muted);
+      letter-spacing: 0.8px; padding: 12px 8px 4px; text-transform: uppercase;
     }
 
     .nav-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 9px 10px;
-      border-radius: var(--radius-md);
-      color: var(--text-secondary);
-      text-decoration: none;
-      font-size: 14px;
-      font-weight: 500;
-      transition: all var(--transition);
-      white-space: nowrap;
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 10px; border-radius: var(--radius-md);
+      color: var(--text-secondary); text-decoration: none;
+      font-size: 14px; font-weight: 500;
+      transition: all var(--transition); white-space: nowrap;
     }
-
-    .nav-item:hover {
-      background: var(--bg-hover);
-      color: var(--text-primary);
-    }
-
+    .nav-item:hover { background: var(--bg-hover); color: var(--text-primary); }
     .nav-item.active {
       background: linear-gradient(135deg, rgba(79,142,247,0.18), rgba(79,142,247,0.08));
-      color: var(--primary);
-      border: 1px solid rgba(79,142,247,0.2);
+      color: var(--primary); border: 1px solid rgba(79,142,247,0.2);
     }
-
-    .nav-icon {
-      width: 18px;
-      height: 18px;
-      flex-shrink: 0;
-    }
-
+    .nav-icon { width: 18px; height: 18px; flex-shrink: 0; }
     .nav-label { flex: 1; }
 
     .sidebar-footer {
-      padding: 16px;
-      border-top: 1px solid var(--border);
+      padding: 12px 8px; border-top: 1px solid var(--border);
+      display: flex; flex-direction: column; gap: 6px;
     }
 
-    .footer-label {
-      display: block;
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--text-secondary);
+    .theme-toggle-btn {
+      display: flex; align-items: center; gap: 10px;
+      width: 100%; padding: 9px 10px; border-radius: var(--radius-md);
+      background: none; border: none; color: var(--text-secondary);
+      font-size: 13px; font-weight: 500; cursor: pointer;
+      transition: all var(--transition); text-align: left; white-space: nowrap;
     }
+    .theme-toggle-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+    .theme-icon { flex-shrink: 0; }
+    .theme-label { flex: 1; }
 
-    .footer-sub {
-      display: block;
-      font-size: 10px;
-      color: var(--text-muted);
-      margin-top: 2px;
-    }
+    .footer-info { padding: 2px 10px; }
+    .footer-label { display: block; font-size: 11px; font-weight: 600; color: var(--text-secondary); }
+    .footer-sub { display: block; font-size: 10px; color: var(--text-muted); margin-top: 2px; }
 
-    .collapsed .sidebar-logo {
-      justify-content: center;
-      padding: 0 12px;
-    }
+    .collapsed .sidebar-logo { justify-content: center; padding: 0 12px; }
     .collapsed .nav-item { justify-content: center; }
+    .collapsed .theme-toggle-btn { justify-content: center; }
   `]
 })
 export class SidebarComponent {
+  themeService = inject(ThemeService);
   collapsed = false;
   toggle() { this.collapsed = !this.collapsed; }
 }

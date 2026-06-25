@@ -30,13 +30,20 @@ import { TCC, STATUS_LABELS, STATUS_BADGE } from '../../../core/models/models';
             Editar
           </a>
           @if (tcc.arquivo) {
-            <a [href]="getArquivoUrl(tcc.arquivo)" target="_blank" class="btn btn-primary">
+            <a [href]="getArquivoUrl(tcc.arquivo)" target="_blank" class="btn btn-secondary" title="Visualizar PDF">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+              Visualizar
+            </a>
+            <button (click)="downloadPdf(tcc.arquivo)" class="btn btn-primary" title="Download direto do PDF">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                 <polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line>
               </svg>
-              Baixar PDF
-            </a>
+              Download
+            </button>
           }
         </div>
       }
@@ -146,14 +153,23 @@ import { TCC, STATUS_LABELS, STATUS_BADGE } from '../../../core/models/models';
               <span class="card-title">📎 Arquivo</span>
             </div>
             @if (tcc.arquivo) {
-              <a [href]="getArquivoUrl(tcc.arquivo)" target="_blank" class="btn btn-primary w-full" style="justify-content:center">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                  <polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line>
-                </svg>
-                Baixar PDF
-              </a>
-              <div class="text-sm text-muted mt-md" style="word-break:break-all">{{ tcc.arquivo }}</div>
+              <div class="flex flex-col gap-sm">
+                <a [href]="getArquivoUrl(tcc.arquivo)" target="_blank" class="btn btn-secondary w-full" style="justify-content:center">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                  Visualizar PDF
+                </a>
+                <button (click)="downloadPdf(tcc.arquivo)" class="btn btn-primary w-full" style="justify-content:center">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line>
+                  </svg>
+                  Download PDF
+                </button>
+              </div>
+              <div class="text-sm text-muted mt-md" style="word-break:break-all; font-size:11px">{{ getFileName(tcc.arquivo) }}</div>
             } @else {
               <div class="empty-state" style="padding:20px">
                 <div style="font-size:32px;margin-bottom:8px">📭</div>
@@ -241,6 +257,25 @@ export class TccDetailComponent implements OnInit {
   getArquivoUrl(arquivo: string) {
     if (arquivo.startsWith('http')) return arquivo;
     return `http://localhost:8000/media/${arquivo}`;
+  }
+
+  getFileName(arquivo: string) {
+    return arquivo.split('/').pop() || 'tcc.pdf';
+  }
+
+  downloadPdf(arquivo: string) {
+    const url = this.getArquivoUrl(arquivo);
+    const filename = this.getFileName(arquivo);
+    fetch(url)
+      .then(r => r.blob())
+      .then(blob => {
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = filename;
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+      })
+      .catch(() => this.toast.error('Erro ao baixar o arquivo'));
   }
 
   changeStatus(status: string) {

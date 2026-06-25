@@ -80,12 +80,50 @@
   --topbar-height: 60px;
 }
 
+/* ========== Tema Claro ========== */
+[data-theme="light"] {
+  --primary: #2563eb;
+  --primary-light: #3b82f6;
+  --primary-dark: #1d4ed8;
+  --primary-glow: rgba(37, 99, 235, 0.2);
+
+  --bg-base: #f0f4f8;
+  --bg-surface: #ffffff;
+  --bg-elevated: #f8fafc;
+  --bg-card: rgba(255, 255, 255, 0.95);
+  --bg-glass: rgba(0, 0, 0, 0.03);
+  --bg-hover: rgba(0, 0, 0, 0.05);
+
+  --border: rgba(0, 0, 0, 0.09);
+  --border-active: rgba(37, 99, 235, 0.4);
+
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --text-link: #2563eb;
+
+  --status-elaboracao: #b45309;
+  --status-elaboracao-bg: rgba(245, 158, 11, 0.12);
+  --status-enviado: #1d4ed8;
+  --status-enviado-bg: rgba(37, 99, 235, 0.1);
+  --status-aprovado: #15803d;
+  --status-aprovado-bg: rgba(22, 163, 74, 0.1);
+  --status-reprovado: #b91c1c;
+  --status-reprovado-bg: rgba(220, 38, 38, 0.1);
+
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.1);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+  --shadow-primary: 0 4px 20px rgba(37, 99, 235, 0.2);
+}
+
 /* ========== Reset & Base ========== */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
+
 
 html {
   font-size: 16px;
@@ -758,6 +796,7 @@ tbody tr:last-child td {
 .flex-col { display: flex; flex-direction: column; }
 .items-center { align-items: center; }
 .justify-between { justify-content: space-between; }
+.gap-xs { gap: var(--space-xs); }
 .gap-sm { gap: var(--space-sm); }
 .gap-md { gap: var(--space-md); }
 .gap-lg { gap: var(--space-lg); }

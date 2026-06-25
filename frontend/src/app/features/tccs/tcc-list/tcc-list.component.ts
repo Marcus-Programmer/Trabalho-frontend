@@ -99,13 +99,20 @@ import { TCC, STATUS_LABELS, STATUS_BADGE } from '../../../core/models/models';
                   </td>
                   <td>
                     @if (tcc.arquivo) {
-                      <a [href]="getArquivoUrl(tcc.arquivo)" target="_blank" class="btn btn-sm btn-secondary" title="Baixar PDF">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                          <polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line>
-                        </svg>
-                        PDF
-                      </a>
+                      <div class="flex gap-xs">
+                        <a [href]="getArquivoUrl(tcc.arquivo)" target="_blank" class="btn btn-sm btn-secondary" title="Visualizar PDF">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                          </svg>
+                        </a>
+                        <button (click)="downloadPdf(tcc.arquivo)" class="btn btn-sm btn-primary" title="Download direto">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line>
+                          </svg>
+                        </button>
+                      </div>
                     } @else {
                       <span class="text-muted text-sm">—</span>
                     }
@@ -226,6 +233,25 @@ export class TccListComponent implements OnInit {
   getArquivoUrl(arquivo: string) {
     if (arquivo.startsWith('http')) return arquivo;
     return `http://localhost:8000${arquivo.startsWith('/') ? '' : '/media/'}${arquivo}`;
+  }
+
+  getFileName(arquivo: string) {
+    return arquivo.split('/').pop() || 'tcc.pdf';
+  }
+
+  downloadPdf(arquivo: string) {
+    const url = this.getArquivoUrl(arquivo);
+    const filename = this.getFileName(arquivo);
+    fetch(url)
+      .then(r => r.blob())
+      .then(blob => {
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = filename;
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+      })
+      .catch(() => this.toast.error('Erro ao baixar o arquivo'));
   }
 
   deleteTcc(tcc: TCC) {

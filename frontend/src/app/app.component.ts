@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { SidebarComponent } from './shared/sidebar/sidebar.component';
 import { ToastComponent } from './shared/toast/toast.component';
+import { ThemeService } from './core/services/theme.service';
 
 @Component({
   selector: 'app-root',
@@ -22,4 +23,9 @@ import { ToastComponent } from './shared/toast/toast.component';
     :host { display: block; }
   `]
 })
-export class AppComponent {}
+export class AppComponent {
+  constructor() {
+    inject(ThemeService).init();
+  }
+}
+
