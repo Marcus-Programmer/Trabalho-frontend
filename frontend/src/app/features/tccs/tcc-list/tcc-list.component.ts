@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../../core/services/api.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { ConfirmService } from '../../../core/services/confirm.service';
 import { TCC, STATUS_LABELS, STATUS_BADGE } from '../../../core/models/models';
 
 @Component({
@@ -162,6 +163,7 @@ import { TCC, STATUS_LABELS, STATUS_BADGE } from '../../../core/models/models';
 export class TccListComponent implements OnInit {
   api = inject(ApiService);
   toast = inject(ToastService);
+  confirm = inject(ConfirmService);
 
   STATUS_LABELS = STATUS_LABELS;
 
@@ -254,8 +256,15 @@ export class TccListComponent implements OnInit {
       .catch(() => this.toast.error('Erro ao baixar o arquivo'));
   }
 
-  deleteTcc(tcc: TCC) {
-    if (!confirm(`Excluir "${tcc.titulo}"? Esta ação não pode ser desfeita.`)) return;
+  async deleteTcc(tcc: TCC) {
+    const ok = await this.confirm.open({
+      title: 'Excluir TCC',
+      message: `Tem certeza que deseja excluir "${tcc.titulo}"? Esta ação não pode ser desfeita.`,
+      confirmText: 'Sim, excluir',
+      cancelText: 'Cancelar',
+      danger: true
+    });
+    if (!ok) return;
     this.api.deleteTCC(tcc.id).subscribe({
       next: () => { this.toast.success('TCC excluído com sucesso'); this.loadAll(); },
       error: () => this.toast.error('Erro ao excluir TCC')
